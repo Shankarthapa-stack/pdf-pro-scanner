@@ -18,14 +18,17 @@
     </div>
   </header>
 
-  <!-- Dedicated Text Edit Bar -->
+  <!-- Naya Edit Tools Bar -->
   <div class="edit-bar">
-    <span>✏️ Text Tools:</span>
-    <input type="text" id="customText" placeholder="Yahan naya text type karein...">
-    <button id="addTextBtn">PDF Par Text Lagayein</button>
+    <span>🛠️ Tools:</span>
+    <button id="eraseBtn" title="Purana text mitane ke liye">🧽 Erase Old Text</button>
+    <div class="divider"></div>
+    <input type="text" id="customText" placeholder="Naya text yahan likhein...">
+    <button id="addTextBtn">✏️ Add New Text</button>
   </div>
 
   <main>
+    <!-- Scanner Area -->
     <div id="scannerSection" class="hidden">
       <video id="video" autoplay playsinline></video>
       <div class="cam-controls">
@@ -34,6 +37,7 @@
       </div>
     </div>
 
+    <!-- PDF Area -->
     <div id="canvasContainer">
       <canvas id="pdfCanvas"></canvas>
     </div>

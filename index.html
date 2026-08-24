@@ -3,41 +3,34 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PDF Scanner & Editor</title>
+  <title>PDF Scanner & Direct Editor</title>
   <link rel="stylesheet" href="style.css">
   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
 </head>
 <body>
   <header>
-    <h1>📄 PDF Editor & Scanner</h1>
+    <h1>📄 PDF Pro Editor</h1>
     <div class="toolbar">
       <input type="file" id="pdfUpload" accept="application/pdf">
-      <button id="startCamBtn">📸 Open Scanner</button>
+      <button id="startCamBtn">📸 Open Camera Scanner</button>
       <button id="downloadBtn" class="primary">📥 Download PDF</button>
     </div>
   </header>
 
-  <!-- Naya Edit Tools Bar -->
-  <div class="edit-bar">
-    <span>🛠️ Tools:</span>
-    <button id="eraseBtn" title="Purana text mitane ke liye">🧽 Erase Old Text</button>
-    <div class="divider"></div>
-    <input type="text" id="customText" placeholder="Naya text yahan likhein...">
-    <button id="addTextBtn">✏️ Add New Text</button>
+  <div class="info-banner">
+    📌 <b>Direct Edit Mode:</b> PDF upload karein aur PDF me jahan bhi click karenge wahan text add ho jayega.
   </div>
 
   <main>
-    <!-- Scanner Area -->
     <div id="scannerSection" class="hidden">
       <video id="video" autoplay playsinline></video>
       <div class="cam-controls">
-        <button id="captureBtn">📷 Capture Page</button>
+        <button id="captureBtn">📷 Capture & Add Page</button>
         <button id="closeCamBtn" class="danger">Close Camera</button>
       </div>
     </div>
 
-    <!-- PDF Area -->
     <div id="canvasContainer">
       <canvas id="pdfCanvas"></canvas>
     </div>

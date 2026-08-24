@@ -4,11 +4,12 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs
 let loadedPdfBytes = null;
 let pdfDoc = null;
 let stream = null;
-let isEditMode = false;
+let currentMode = null; // 'TEXT' ya 'ERASE'
 
 const pdfUpload = document.getElementById('pdfUpload');
 const startCamBtn = document.getElementById('startCamBtn');
 const addTextBtn = document.getElementById('addTextBtn');
+const eraseBtn = document.getElementById('eraseBtn');
 const customTextInput = document.getElementById('customText');
 const downloadBtn = document.getElementById('downloadBtn');
 const scannerSection = document.getElementById('scannerSection');
@@ -37,14 +38,92 @@ async function renderPDF(bytes) {
     await page.render({ canvasContext: context, viewport }).promise;
 }
 
-// 2. Page Scanner (Camera Capture)
+// 2. Editor Tools (Erase & Add Text)
+eraseBtn.addEventListener('click', () => {
+    if (!pdfDoc) return alert("Pehle PDF upload karein!");
+    if (currentMode === 'ERASE') {
+        resetEditState();
+    } else {
+        currentMode = 'ERASE';
+        eraseBtn.classList.add('active-tool');
+        addTextBtn.classList.remove('active-tool');
+        canvas.style.cursor = 'crosshair';
+        alert("🧽 Eraser ON: PDF ke purane text par click karein aur wo mit jayega (whiteout).");
+    }
+});
+
+addTextBtn.addEventListener('click', () => {
+    if (!pdfDoc) return alert("Pehle PDF upload karein!");
+    if (currentMode === 'TEXT') {
+        resetEditState();
+    } else {
+        if (!customTextInput.value.trim()) return alert("Pehle text box me naya text type karein!");
+        currentMode = 'TEXT';
+        addTextBtn.classList.add('active-tool');
+        eraseBtn.classList.remove('active-tool');
+        canvas.style.cursor = 'text';
+    }
+});
+
+function resetEditState() {
+    currentMode = null;
+    eraseBtn.classList.remove('active-tool');
+    addTextBtn.classList.remove('active-tool');
+    canvas.style.cursor = 'default';
+}
+
+canvas.addEventListener('click', async (e) => {
+    if (!currentMode || !pdfDoc) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    const pages = pdfDoc.getPages();
+    const firstPage = pages[0];
+    const pdfHeight = firstPage.getHeight();
+    const pdfWidth = firstPage.getWidth();
+
+    const scaleX = pdfWidth / canvas.width;
+    const scaleY = pdfHeight / canvas.height;
+
+    const pdfX = x * scaleX;
+    const pdfY = pdfHeight - (y * scaleY);
+
+    if (currentMode === 'ERASE') {
+        // Purane text par white box lagana (mitana)
+        firstPage.drawRectangle({
+            x: pdfX - 25, 
+            y: pdfY - 10,
+            width: 80, 
+            height: 20,
+            color: rgb(1, 1, 1), // White color
+        });
+    } else if (currentMode === 'TEXT') {
+        // Naya text likhna
+        const textToInsert = customTextInput.value.trim();
+        firstPage.drawText(textToInsert, {
+            x: pdfX,
+            y: pdfY - 5,
+            size: 16,
+            color: rgb(0, 0, 0) // Black Text
+        });
+        customTextInput.value = ''; // Box khali karna
+        resetEditState();
+    }
+
+    loadedPdfBytes = await pdfDoc.save();
+    await renderPDF(loadedPdfBytes);
+});
+
+// 3. Scanner Logic
 startCamBtn.addEventListener('click', async () => {
     scannerSection.classList.remove('hidden');
     try {
         stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
         video.srcObject = stream;
     } catch (err) {
-        alert("Camera access failed: " + err.message);
+        alert("Camera access failed!");
     }
 });
 
@@ -69,73 +148,16 @@ document.getElementById('captureBtn').addEventListener('click', async () => {
 
     loadedPdfBytes = await pdfDoc.save();
     renderPDF(loadedPdfBytes);
-    alert("Scanned page PDF me add ho gayi!");
+    alert("Scanned Page added!");
 });
 
-// 3. Edit Text (Click to place on PDF, no watermark)
-addTextBtn.addEventListener('click', () => {
-    if (!pdfDoc) return alert("Pehle PDF upload ya scan karein!");
-    if (!customTextInput.value.trim()) return alert("Pehle text box me kuch type karein!");
-
-    isEditMode = !isEditMode;
-    if (isEditMode) {
-        addTextBtn.style.backgroundColor = '#d29922';
-        addTextBtn.innerText = '📍 PDF par click karein';
-        canvas.style.cursor = 'crosshair';
-    } else {
-        resetEditState();
-    }
-});
-
-canvas.addEventListener('click', async (e) => {
-    if (!isEditMode || !pdfDoc) return;
-
-    const textToInsert = customTextInput.value.trim();
-    if (!textToInsert) return;
-
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    const pages = pdfDoc.getPages();
-    const firstPage = pages[0];
-    const pdfHeight = firstPage.getHeight();
-    const pdfWidth = firstPage.getWidth();
-
-    const scaleX = pdfWidth / canvas.width;
-    const scaleY = pdfHeight / canvas.height;
-
-    const pdfX = x * scaleX;
-    const pdfY = pdfHeight - (y * scaleY);
-
-    firstPage.drawText(textToInsert, {
-        x: pdfX,
-        y: pdfY,
-        size: 16,
-        color: rgb(0, 0, 0)
-    });
-
-    loadedPdfBytes = await pdfDoc.save();
-    await renderPDF(loadedPdfBytes);
-
-    resetEditState();
-    customTextInput.value = '';
-});
-
-function resetEditState() {
-    isEditMode = false;
-    addTextBtn.style.backgroundColor = '';
-    addTextBtn.innerText = '✏️ Add Text';
-    canvas.style.cursor = 'default';
-}
-
-// 4. Download PDF
+// 4. Download 
 downloadBtn.addEventListener('click', async () => {
-    if (!pdfDoc) return alert("Download karne ke liye koi PDF nahi hai!");
+    if (!pdfDoc) return alert("Koi PDF nahi hai!");
     const pdfBytes = await pdfDoc.save();
     const blob = new Blob([pdfBytes], { type: "application/pdf" });
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = "edited_document.pdf";
+    link.download = "Edited_Document.pdf";
     link.click();
 });

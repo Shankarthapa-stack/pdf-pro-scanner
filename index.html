@@ -3,26 +3,29 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PDF Pro Scanner & Editor</title>
+  <title>PDF Scanner & Editor</title>
   <link rel="stylesheet" href="style.css">
-  <!-- Required Libraries -->
   <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
 </head>
 <body>
   <header>
-    <h1>📄 PDF Scanner & Editor</h1>
+    <h1>📄 PDF Editor & Scanner</h1>
     <div class="toolbar">
       <input type="file" id="pdfUpload" accept="application/pdf">
       <button id="startCamBtn">📸 Open Scanner</button>
-      <input type="text" id="customText" placeholder="Text yahan likhein...">
-      <button id="addTextBtn">✏️ Add Text</button>
       <button id="downloadBtn" class="primary">📥 Download PDF</button>
     </div>
   </header>
 
+  <!-- Dedicated Text Edit Bar -->
+  <div class="edit-bar">
+    <span>✏️ Text Tools:</span>
+    <input type="text" id="customText" placeholder="Yahan naya text type karein...">
+    <button id="addTextBtn">PDF Par Text Lagayein</button>
+  </div>
+
   <main>
-    <!-- Scanner View -->
     <div id="scannerSection" class="hidden">
       <video id="video" autoplay playsinline></video>
       <div class="cam-controls">
@@ -31,7 +34,6 @@
       </div>
     </div>
 
-    <!-- PDF Viewer Canvas -->
     <div id="canvasContainer">
       <canvas id="pdfCanvas"></canvas>
     </div>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,17 +11,18 @@
 </head>
 <body>
   <header>
-    <h1>📄 PDF Pro Scanner & Editor</h1>
+    <h1>📄 PDF Scanner & Editor</h1>
     <div class="toolbar">
       <input type="file" id="pdfUpload" accept="application/pdf">
       <button id="startCamBtn">📸 Open Scanner</button>
-      <button id="addTextBtn">✏️ Add Sample Text</button>
+      <input type="text" id="customText" placeholder="Text yahan likhein...">
+      <button id="addTextBtn">✏️ Add Text</button>
       <button id="downloadBtn" class="primary">📥 Download PDF</button>
     </div>
   </header>
 
   <main>
-    <!-- Scanner Section -->
+    <!-- Scanner View -->
     <div id="scannerSection" class="hidden">
       <video id="video" autoplay playsinline></video>
       <div class="cam-controls">
@@ -30,7 +31,7 @@
       </div>
     </div>
 
-    <!-- PDF Render Area -->
+    <!-- PDF Viewer Canvas -->
     <div id="canvasContainer">
       <canvas id="pdfCanvas"></canvas>
     </div>
